@@ -1,0 +1,21 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environments:
+      - DATABASE_URL=postgresql://guardia:guardiaTeste@db/usuario_db
+
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=guardia
+      - POSTGRES_PASSWORD=guardiaTeste
+      - POSTGRES_DB=usuario_db
