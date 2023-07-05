@@ -6,6 +6,9 @@ class UserService:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    def get_users(self):
+        return self.db.query(User).all()
+
     def create_user(self, user: UserCreateSchema) -> User:
         _user = User(username=user.username, email=user.email, password=user.password)
         self.db.add(_user)
@@ -18,3 +21,4 @@ class UserService:
 
     def get_user_by_email(self, user_email) -> User:
         return self.db.query(User).filter(User.email == user_email).first()
+    

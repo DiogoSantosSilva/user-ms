@@ -9,7 +9,7 @@ services:
     depends_on:
       - db
     environments:
-      - DATABASE_URL=postgresql://guardia:guardiaTeste@db/usuario_db
+      - DATABASE_URL=postgresql://guardia:guardia123/postgres
 
   db:
     image: postgres
@@ -17,5 +17,5 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_USER=guardia
-      - POSTGRES_PASSWORD=guardiaTeste
-      - POSTGRES_DB=usuario_db
+      - POSTGRES_PASSWORD=guardia123
+      - POSTGRES_DB=postgres
