@@ -8,10 +8,9 @@ from app.services.autentication_service import AuthenticationService
 
 router = APIRouter(prefix="/token", tags=["token"])
 
+
 @router.post("/", response_model=Token)
-async def login_for_access_token(
-    data: Login = Depends()
-):
+async def login_for_access_token(data: Login = Depends()):
     authentication_service = AuthenticationService()
     user = authentication_service.authenticate_user(data.username, data.password)
     if not user:

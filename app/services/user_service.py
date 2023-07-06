@@ -21,4 +21,3 @@ class UserService:
 
     def get_user_by_email(self, user_email) -> User:
         return self.db.query(User).filter(User.email == user_email).first()
-    

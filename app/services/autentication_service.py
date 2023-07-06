@@ -6,6 +6,7 @@ from app.services.user_service import UserService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 class AuthenticationService:
     def __init__(self, db: Session) -> None:
         self.db = db
@@ -19,7 +20,6 @@ class AuthenticationService:
             return False
         return user
 
-
     def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
         to_encode = data.copy()
         if expires_delta:
@@ -29,7 +29,7 @@ class AuthenticationService:
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
-    
+
     @staticmethod
     def verify_password(plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)

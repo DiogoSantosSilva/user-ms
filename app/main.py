@@ -8,4 +8,6 @@ app.include_router(user_controller.router)
 app.include_router(authentication_controller.router)
 
 if __name__ == "__main__":
+    import uvicorn
+
     uvicorn.run(app, host=settings.HOST, port=settings.PORT)
