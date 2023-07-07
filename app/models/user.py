@@ -1,6 +1,8 @@
-from app import Base
+from pydantic import BaseModel, Field
 from sqlalchemy import Column, Integer, String, Boolean
-from pydantic import BaseModel
+from typing import Optional
+
+from app import Base
 
 
 class User(Base):
@@ -16,16 +18,29 @@ class User(Base):
 class UserBase(BaseModel):
     username: str
     email: str
-
-
-class UserCreateSchema(UserBase):
-    password: str
+    password: Optional[str]
 
 
 class UserSchema(UserBase):
-    id: int
-    is_active: bool
+    id: Optional[int]
+    is_active: Optional[bool]
 
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
+
+
+class UserSchemaOut(BaseModel):
+    id: Optional[int]
+    username: str
+    email: str
+    is_active: Optional[bool]
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
+class UserAuth(BaseModel):
+    email: str = Field(..., description="user email")
+    password: str = Field(..., min_length=5, max_length=24, description="user password")

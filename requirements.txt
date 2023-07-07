@@ -5,3 +5,7 @@ SQLAlchemy==2.0.17
 uvicorn==0.22.0
 alembic
 python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+jose-python
