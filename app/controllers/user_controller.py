@@ -34,5 +34,8 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{user_id}/dependents")
-def create_relation_between_user_dependents(user_id: int, data):
-    pass
+def create_relation_between_user_dependents(user_id: int, user_dependente: UserSchemaInput, db: Session = Depends(get_db)):
+    user_service = UserService(db)
+    return user_service.add_related_user(user_id, user_dependente)
+
+

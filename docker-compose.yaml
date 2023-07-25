@@ -8,8 +8,15 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    environments:
-      - DATABASE_URL=postgresql://guardia:guardia123/ms_user
+    environment:
+      - DATABASE_URL=postgresql://postgres:guardia123@localhost/ms_user
+      - JWT_SECRET_KEY=teste
+      - JWT_REFRESH_SECRET_KEY=guardia
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_MINUTES=10080
+      - HOST=0.0.0.0
+      - PORT=8000
 
   db:
     image: postgres
