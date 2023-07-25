@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.user import User, UserSchema
+from app.models.user import User, UserSchemaInput
 
 
 class UserService:
@@ -10,7 +10,7 @@ class UserService:
     def get_users(self):
         return self.db.query(User).all()
 
-    def create_user(self, user: UserSchema) -> User:
+    def create_user(self, user: UserSchemaInput) -> User:
         _user = User(username=user.username, email=user.email, password=user.password)
         self.db.add(_user)
         self.db.commit()

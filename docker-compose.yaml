@@ -9,7 +9,7 @@ services:
     depends_on:
       - db
     environments:
-      - DATABASE_URL=postgresql://guardia:guardia123/postgres
+      - DATABASE_URL=postgresql://guardia:guardia123/ms_user
 
   db:
     image: postgres

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class TokenSchema(BaseModel):
+    id: int
     access_token: str
     refresh_token: str
 
