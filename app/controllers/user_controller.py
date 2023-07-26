@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import get_db
-from app.models.user import UserSchemaInput
+from app.models.user import UserSchemaInput, DependentSchemaInput, UserSchemaOutput
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -17,14 +17,14 @@ def get_all_users(db: Session = Depends(get_db)):
     return db_users
 
 
-@router.post("/", response_model=UserSchemaInput)
+@router.post("/", response_model=UserSchemaOutput)
 def create_user(user: UserSchemaInput, db: Session = Depends(get_db)):
     user_service = UserService(db)
     db_user = user_service.create_user(user)
     return db_user
 
 
-@router.get("/{user_id}", response_model=UserSchemaInput)
+@router.get("/{user_id}", response_model=UserSchemaOutput)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user_service = UserService(db)
     db_user = user_service.get_user_by_id(user_id)
@@ -33,9 +33,26 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.post("/{user_id}/dependents")
-def create_relation_between_user_dependents(user_id: int, user_dependente: UserSchemaInput, db: Session = Depends(get_db)):
+@router.post("/{user_id}/dependents", response_model=UserSchemaOutput)
+def create_relation_between_user_dependents(user_id, dependent: DependentSchemaInput, db: Session = Depends(get_db)):
     user_service = UserService(db)
-    return user_service.add_related_user(user_id, user_dependente)
+    return user_service.add_related_user(user_id, dependent)
 
 
+@router.delete('/{user_id}/dependents/{dependent_id}', status_code=204)
+def delete_dependent(user_id: int, dependent_id: int, db: Session = Depends(get_db)):
+    user_service = UserService(db)
+    db_user = user_service.get_user_by_id(user_id)
+    dependent = user_service.get_user_by_id(user_id)
+
+    if not db_user or not dependent:
+        raise HTTPException(status_code=404, detail="User or dependent not found")
+
+    for dependent in db_user.dependents:
+        if dependent.id == dependent_id:
+            db_user.dependents.remove(dependent)
+
+    db.delete(dependent)
+    db.commit()
+
+    return None

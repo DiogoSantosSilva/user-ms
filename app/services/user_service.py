@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.user import User, Profile, ResponsibleFor, UserSchemaInput
+from app.models.user import User, Profile, UserSchemaInput
+
 
 class UserService:
     def __init__(self, db: Session) -> None:
@@ -33,16 +34,27 @@ class UserService:
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
-        user_payload = {}
-        user_profile_payload = {}
-
-        user_dependent = User(**user_payload)
-        user_dependent.profile = Profile(**user_profile_payload)
-        user.responsible_for = ResponsibleFor()
-        self.db.add(user)
+        user_dependent = User(
+            username=dependent.username,
+            password=dependent.password,
+            email=dependent.email,
+            user_type=dependent.user_type,
+            has_access=dependent.has_access,
+            parent_id=user.id
+        )
+        user_profile = Profile(
+            full_name=dependent.full_name,
+            age=dependent.age,
+            gender=dependent.gender,
+            height=dependent.height,
+            weight=dependent.weight,
+            bio=dependent.bio
+        )
+        user_dependent.profile = user_profile
+        self.db.add(user_dependent)
         self.db.commit()
-        self.db.refresh(user)
-        return user
+        self.db.refresh(user_dependent)
+        return user_dependent
 
     def get_user_by_id(self, user_id: int):
         return self.db.query(User).filter(User.id == user_id).first()

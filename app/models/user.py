@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conlist
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, func, Float
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app import Base
 
@@ -13,7 +13,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, index=True)
     password = Column(String)
-    email = Column(String, unique=True, index=True)
+    email = Column(String, index=True)
     is_active = Column(Boolean, default=True)
     user_type = Column(Integer, default=0, index=True)
     has_access = Column(Boolean, default=True)
@@ -23,11 +23,11 @@ class User(Base):
 
     # Define the one-to-one relationship between User and Profile
     # Set 'nullable=True' to make Profile optional
-    profile = relationship("Profile", uselist=False, back_populates="user", lazy="joined", cascade="all, delete-orphan",
-                           single_parent=True)
+    profile = relationship("Profile", uselist=False, back_populates="user", cascade="all, delete-orphan")
 
-    # Define the one-to-many relationship between User and ResponsibleFor
-    responsible_for = relationship("ResponsibleFor", back_populates="responsible_user")
+    # Define the one-to-many relationship between User and Dependents
+    parent_id = Column(Integer, ForeignKey('users.id'))
+    dependents = relationship("User", backref=backref("parent", remote_side=[id]))
 
 
 class Profile(Base):
@@ -49,19 +49,6 @@ class Profile(Base):
                         single_parent=True)
 
 
-class ResponsibleFor(Base):
-    __tablename__ = "responsible_for"
-
-    id = Column(Integer, primary_key=True, index=True)
-    entity_name = Column(String)
-
-    # Define the foreign key for the user
-    user_id = Column(Integer, ForeignKey('users.id'))
-
-    # Create a back reference to the User model
-    responsible_user = relationship("User", back_populates="responsible_for")
-
-
 class UserBase(BaseModel):
     id: Optional[int]
     username: str
@@ -76,15 +63,56 @@ class UserSchemaInput(UserBase):
         arbitrary_types_allowed = True
 
 
-class UserSchemaOutput(BaseModel):
+class DependentSchemaInput(UserBase):
     id: Optional[int]
     username: str
-    email: str
-    is_active: Optional[bool]
+    email: Optional[str]
+    password: Optional[str]
+    full_name: str
+    user_type: int
+    has_access: bool
+    age: int
+    gender: str
+    height: int
+    weight: float
+    bio: str
+    imageUrl: Optional[str] = None
 
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
+
+
+class ProfileOutput(BaseModel):
+    id: int = None
+    full_name: str = None
+    age: int = None
+    gender: str = None
+    height: float = None
+    weight: float = None
+    bio: str = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
+class UserOutputBase(BaseModel):
+    id: int
+    username: str
+    email: str
+    is_active: bool = None
+    user_type: int = None
+    has_access: bool = None
+    profile: Optional[ProfileOutput] = None
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
+class UserSchemaOutput(UserOutputBase):
+    dependents: Optional[List[UserOutputBase]] = None
 
 
 class UserAuth(BaseModel):
